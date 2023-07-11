@@ -20,7 +20,7 @@ class Sphere extends Shape {
     this.createSphere();
   }
 
-  createSphere(nDivisions = 2) {
+  createSphere(nDivisions = 3) {
     let vp = [
       vec3(1.0, 0.0, 0.0),
       vec3(0.0, 1.0, 0.0),
