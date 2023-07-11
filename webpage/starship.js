@@ -196,7 +196,7 @@ class Starship {
 
     updateModelPosition(dir, deltaTime, elapsedTime) {
         this.model.transform(deltaTime, elapsedTime);
-        this.model.translateAlt([
+        this.model.translate([
             this.pos[0] - this.modelRadius * dir[0],
             this.pos[1] - this.modelRadius * dir[1],
             this.pos[2] - this.modelRadius * dir[2]

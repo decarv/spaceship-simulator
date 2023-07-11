@@ -8,7 +8,7 @@ class LightSource {
         this.La = vec4(0.3, 0.3, 0.3, 1.0); // ambiente
         this.Ld = vec4(0.8, 0.8, 0.8, 1.0); // difusão
         this.Ls = vec4(0.8, 0.8, 0.8, 1.0); // especular
-        this.model = new Sphere([1, 1, 1, 1]).scale([5, 5, 5]).translate(pos);
+        this.model = new Sphere(null, 0).scale([5, 5, 5]).translate(pos).transform(0, 0);
     }
 }
 

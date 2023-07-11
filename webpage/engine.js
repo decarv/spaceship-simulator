@@ -17,6 +17,7 @@ import {
     mult
 } from "../lib/MVnew.js";
 import starship from "./starship.js";
+import lightSource from "./lightSource.js";
 
 class Engine {
     constructor() {
@@ -38,51 +39,63 @@ class Engine {
         this.aspect = (this.canvas.width / this.canvas.height);
 
         // Shapes criadas
-        this.shapes = []
+        this.shapes = [];
 
         // Fonte de Luz
         this.lightSource = new LightSource([0, 400, 0]);
-        this.shapes.push(this.lightSource.model);
 
         // Cubo de Referência
-        // const referenceCube = new Cube(['blue', 'yellow', 'cyan', 'red', 'green', 'magenta'], 50.0)
-        //     .scale([30, 30, 30])
-        // this.shapes.push(referenceCube);
+        const referenceCube = new Cube(
+            ['blue', 'red', 'magenta', 'green', 'yellow', 'cyan']
+        ).scale([30, 30, 30])
+        this.shapes.push(referenceCube);
 
+        const platform = new Cube(
+            ['blue', 'red', 'magenta', 'mars', 'yellow', 'cyan']
+        ).scale([3000, 50, 3000]).translate([0, -200, 0])
+        this.shapes.push(platform);
 
-        // const tube = new Cube()
-        //     .rotate([20, 30, 90])
-        //     .scale([240, 30, 30])
-        //     .translate([10000, 10000, 0])
-        //     .animate([0.1, 0.1, 0.1]);
-
-        // const platform= new Cube(null, 50.0)
-        //      .scale([1500, 30, 1500])
-        //      .translate([0, -200, 0])
-        //      .animate([0, -0.001, 0]);
-        // this.shapes.push(platform)
-
-        const rotatingCube = new Cube(0)
+        const rotatingCube1 = new Cube()
              .scale([100, 100, 100])
-             .animate([-0.1, 0, 0]);
-        this.shapes.push(rotatingCube);
+            .translate([-200, 50, -200])
+            .animate([-0.1, 0, 0])
+        this.shapes.push(rotatingCube1);
 
+        const rotatingCube2 = new Cube()
+             .scale([100, 100, 100])
+            .translate([-200, 50, 200])
+            .animate([0.0, -0.1, 0])
+        this.shapes.push(rotatingCube2);
 
-        // const sphere = new Sphere()
-        //     .scale([100, 100, 100])
-        //     .animate([-0.1, 0, 0]);
-        // this.shapes.push(sphere);
+        const rotatingCube3 = new Cube()
+            .scale([100, 100, 100])
+            .translate([200, 50, -200])
+            .animate([0.0, 0.0, -0.1])
+        this.shapes.push(rotatingCube3);
 
-        // const disc= new Sphere()
-        //     .scale([150, 30, 150])
-        //     .translate([-15000, -1000, -15000])
-        //     .animate([0, 0.1, 0]);
+        const rotatingSphere1 = new Sphere()
+            .scale([100, 100, 100])
+            .translate([200, 750, -200])
+            .animate([0.0, 0.0, -0.1]);
+        this.shapes.push(rotatingSphere1);
+
+        const rotatingSphere2 = new Sphere()
+            .scale([100, 100, 100])
+            .translate([-200, 750, 200])
+            .animate([0.0, -0.1, 0.0]);
+        this.shapes.push(rotatingSphere2);
+
+        const rotatingSphere3 = new Sphere()
+            .scale([100, 100, 100])
+            .translate([-200, 750, -200])
+            .animate([-0.1, 0.0, 0.0]);
+        this.shapes.push(rotatingSphere3);
 
         this.starshipNumber = 0;
         this.starshipList = [];
-        this.addStarship([500, 200, 500]);
-        this.addStarship([-500, 200, 500]);
-        this.addStarship([500, 200, -500]);
+        this.addStarship([1500, 400, 1500]);
+        this.addStarship([-500, 400, 500]);
+        this.addStarship([500, 400, -500]);
         this.starship = this.starshipList[this.starshipNumber];
 
         // Lógica do Input
@@ -102,6 +115,16 @@ class Engine {
             } else if (event.key === 'm') {
                 this.nextStarship();
             } else if (event.key === 'n') {
+                this.prevStarship();
+            } else if (event.key === '+') {
+                this.addStarship(
+                    [
+                        utils.randomFloatInRange(-1000, 1000),
+                        utils.randomFloatInRange(-100, 500),
+                        utils.randomFloatInRange(-1000, 1000)
+                    ]
+                );
+            } else if (event.key === '-') {
                 this.prevStarship();
             } else {
              this.keyInputQueue.push(event.key);
@@ -140,6 +163,7 @@ class Engine {
         this.fragmentShader = utils.createShader(this.gl, this.gl.FRAGMENT_SHADER, this.fragmentShaderSource);
         this.renderProgram = utils.createProgram(this.gl, this.vertexShader, this.fragmentShader);
 
+
         this.uPerspectiveLocation = this.gl.getUniformLocation(this.renderProgram, "u_perspective");
         this.uViewLocation = this.gl.getUniformLocation(this.renderProgram, "u_view");
         this.uModelLocation = this.gl.getUniformLocation(this.renderProgram, "u_model");
@@ -156,6 +180,15 @@ class Engine {
 
         this.aPositionLocation = this.gl.getAttribLocation(this.renderProgram, "a_position");
         this.aNormalLocation = this.gl.getAttribLocation(this.renderProgram, "a_normal");
+
+        this.lightSourceVertexShaderSource = await utils.fetchShaderSource("../lib/shaders/light_source.vert")
+        this.lightSourceFragmentShaderSource = await utils.fetchShaderSource("../lib/shaders/light_source.frag")
+        this.lightSourceVertexShader = utils.createShader(this.gl, this.gl.VERTEX_SHADER, this.lightSourceVertexShaderSource);
+        this.lightSourceFragmentShader = utils.createShader(this.gl, this.gl.FRAGMENT_SHADER, this.lightSourceFragmentShaderSource);
+        this.renderLightSourceProgram = utils.createProgram(this.gl, this.lightSourceVertexShader, this.lightSourceFragmentShader);
+        this.uLightSourceViewLocation = this.gl.getUniformLocation(this.renderLightSourceProgram, "u_ls_view");
+        this.uLightSourcePerspectiveLocation = this.gl.getUniformLocation(this.renderLightSourceProgram, "u_ls_perspective");
+        this.aLightSourcePositionLocation = this.gl.getAttribLocation(this.renderLightSourceProgram, "a_ls_position");
     }
 
     run() {
@@ -233,11 +266,35 @@ class Engine {
 
     render() {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-        this.gl.useProgram(this.renderProgram);
 
+        // Renderiza LightSource
+        this.gl.useProgram(this.renderLightSourceProgram);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
-        // Usa Perspectiva e Câmera da starship atual
+        this.gl.uniformMatrix4fv(
+            this.uLightSourceViewLocation,
+            false,
+            flatten(this.starship.viewMatrix)
+        );
+        this.gl.uniformMatrix4fv(
+            this.uLightSourcePerspectiveLocation,
+            false,
+            flatten(this.starship.perspectiveMatrix)
+        );
+        const lsVertices= this.lightSource.model.model;
+        let positionsBuffer = utils.makeBuffer(this.gl, flatten(lsVertices));
+        utils.setAttribute(
+             this.gl,
+             this.aLightSourcePositionLocation,
+             {size: 3, datatype: this.gl.FLOAT, normalize: false, stride: 0, offset: 0}
+        );
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, lsVertices.length);
+
+
+        // Renderiza Formas
+        this.gl.useProgram(this.renderProgram);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+
         this.gl.uniformMatrix4fv(
             this.uViewLocation,
             false,
@@ -253,13 +310,11 @@ class Engine {
             false,
             flatten(transpose(inverse4(this.starship.viewMatrix)))
         );
-
         this.gl.uniform4fv(this.uLightPositionLocation, this.lightSource.pos);
         this.gl.uniform4fv(this.uAmbientLightLocation, this.lightSource.La);
         this.gl.uniform4fv(this.uDiffuseLightLocation, this.lightSource.Ld);
         this.gl.uniform4fv(this.uSpecularColorLocation, this.lightSource.Ls);
 
-        // Renderiza Formas
         for (const shape of this.shapes) {
             let positionsBuffer = utils.makeBuffer(this.gl, flatten(shape.model));
             utils.setAttribute(

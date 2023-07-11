@@ -80,7 +80,7 @@ class Cube extends Shape {
         //
         // ];
 
-        this.calculateNormals();
+        // this.calculateNormals();
 
         if (colors) {
             for (let i = 0; i < this.vertices.length / 6; i++) {

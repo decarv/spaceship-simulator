@@ -38,6 +38,8 @@ class Shape {
 
         this.alpha = alpha;
 
+        this.pos = [0, 0, 0];
+
         this.vtheta = [0, 0, 0];
 
         this.rotation = mat4();
@@ -67,14 +69,21 @@ class Shape {
         for (let i = 0; i < this.vertices.length; i++) {
             this.model[i] = point4as3(mult(transformation, point3as4(this.model[i])));
         }
-    }
-
-    translate(point) {
-        this.translation = mult(this.translation, translate(point[0], point[1], point[2]));
         return this;
     }
 
-    translateAlt(point) {
+    translate(point) {
+        this.pos[0] = point[0];
+        this.pos[1] = point[1];
+        this.pos[2] = point[2];
+        this.translation = translate(point[0], point[1], point[2]);
+        return this;
+    }
+
+    setTranslation(point) {
+        this.pos[0] = point[0];
+        this.pos[1] = point[1];
+        this.pos[2] = point[2];
         this.translation = translate(point[0], point[1], point[2]);
     }
 

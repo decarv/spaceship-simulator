@@ -1,5 +1,5 @@
 "use strict";
-import {mix, normalize, vec3 } from "../lib/MVnew.js"
+import {mix, normalize, subtract, vec3} from "../lib/MVnew.js"
 import Shape from "./shape.js";
 import {randomColor} from "../lib/utils.js";
 
@@ -18,8 +18,8 @@ class Sphere extends Shape {
     }
 
     this.createSphere();
-    this.calculateNormals();
   }
+
   createSphere(nDivisions = 2) {
     let vp = [
       vec3(1.0, 0.0, 0.0),
@@ -81,6 +81,13 @@ class Sphere extends Shape {
       this.C.d.push(this.color_a);
       this.C.d.push(this.color_b);
       this.C.d.push(this.color_c);
+    }
+
+    calculateNormals() {
+      this.normals = []
+      for (const v of this.model) {
+        this.normals.push(subtract(v, vec3(...this.pos)));
+      }
     }
 }
 
